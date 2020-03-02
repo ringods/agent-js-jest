@@ -23,7 +23,7 @@
   "dependencies": {
     "@jest/reporters": "25.1.0",
     "jest-cli": "^25.1.0",
-    "reportportal-client": "^5.5.0"
+    "reportportal-client": "git://github.com/reportportal/client-javascript.git#master"
   },
   "devDependencies": {
     "@types/jest": "^24.9.0",

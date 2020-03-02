@@ -1,5 +1,5 @@
 const getOptions = require('./utils/getOptions');
-const RPClient = require('reportportal-client');
+const { RPClient, EVENTS } = require('reportportal-client');
 const { getClientInitObject, getSuiteStartObject,
         getStartLaunchObject, getTestStartObject } = require('./utils/objectUtils');
 
@@ -26,6 +26,7 @@ class JestReportPortal {
         this.client = new RPClient(this.reportOptions);
         this.tempSuiteId = null;
         this.tempTestId = null;
+        this._registerListeners();
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -39,6 +40,7 @@ class JestReportPortal {
 
     // eslint-disable-next-line no-unused-vars
     onTestResult (test, testResult, aggregatedResults) {
+        console.log('onTestResult', test);
         let suiteName = testResult.testResults[0].ancestorTitles[0];
 
         this._startSuite(suiteName);
@@ -56,6 +58,7 @@ class JestReportPortal {
 
     // eslint-disable-next-line no-unused-vars
     onRunComplete (contexts, results) {
+        console.log('onRunComplete', contexts);
         const { promise } = this.client.finishLaunch(this.tempLaunchId);
 
         promiseErrorHandler(promise);
@@ -78,6 +81,7 @@ class JestReportPortal {
     }
 
     _finishTest (test, isRetried) {
+        //console.log('_finishTest', test);
         let errorMsg = test.failureMessages[0];
 
         switch (test.status) {
@@ -137,6 +141,11 @@ class JestReportPortal {
         const { promise } = this.client.finishTestItem(this.tempSuiteId, {});
 
         promiseErrorHandler(promise);
+    }
+
+    _registerListeners () {
+        console.log('_registerListeners');
+        process.on(EVENTS.ADD_ATTRIBUTES, this.onRunComplete.bind(this));
     }
 }
 
